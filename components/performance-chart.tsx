@@ -115,12 +115,12 @@ export function PerformanceChart() {
           <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorDrawdown" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -145,7 +145,7 @@ export function PerformanceChart() {
             <Area
               type="monotone"
               dataKey="equity"
-              stroke="hsl(var(--primary))"
+              stroke="#10b981"
               fillOpacity={1}
               fill="url(#colorEquity)"
               strokeWidth={2}
@@ -155,7 +155,7 @@ export function PerformanceChart() {
             <Area
               type="monotone"
               dataKey="drawdown"
-              stroke="hsl(var(--destructive))"
+              stroke="#ef4444"
               fillOpacity={1}
               fill="url(#colorDrawdown)"
               strokeWidth={2}
