@@ -44,17 +44,27 @@ const timeAnalysis = [
 
 export function WinLossAnalysis() {
   return (
-    <div className="container space-y-4 py-4 md:py-8">
+    <div className="container space-y-4 py-4 px-4 md:py-8">
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="assets">By Asset</TabsTrigger>
-          <TabsTrigger value="timing">Timing</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-4 min-w-[400px]">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="trends" className="text-xs sm:text-sm">
+              Trends
+            </TabsTrigger>
+            <TabsTrigger value="assets" className="text-xs sm:text-sm">
+              By Asset
+            </TabsTrigger>
+            <TabsTrigger value="timing" className="text-xs sm:text-sm">
+              Timing
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Win/Loss Distribution</CardTitle>
@@ -72,29 +82,29 @@ export function WinLossAnalysis() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Win Rate</h4>
-                      <p className="text-2xl font-bold text-green-500">68.2%</p>
+                      <p className="text-xl md:text-2xl font-bold text-green-500">68.2%</p>
                       <Progress value={68.2} className="mt-1" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Loss Rate</h4>
-                      <p className="text-2xl font-bold text-red-500">31.8%</p>
+                      <p className="text-xl md:text-2xl font-bold text-red-500">31.8%</p>
                       <Progress value={31.8} className="mt-1" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Profit Factor</h4>
-                      <p className="text-2xl font-bold">2.4</p>
+                      <p className="text-xl md:text-2xl font-bold">2.4</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Risk/Reward</h4>
-                      <p className="text-2xl font-bold">1:2.3</p>
+                      <p className="text-xl md:text-2xl font-bold">1:2.3</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Avg Win</h4>
-                      <p className="text-2xl font-bold text-green-500">+$187</p>
+                      <p className="text-xl md:text-2xl font-bold text-green-500">+$187</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Avg Loss</h4>
-                      <p className="text-2xl font-bold text-red-500">-$82</p>
+                      <p className="text-xl md:text-2xl font-bold text-red-500">-$82</p>
                     </div>
                   </div>
                 </div>
@@ -107,11 +117,11 @@ export function WinLossAnalysis() {
               <CardTitle>Streak Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-5">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
                 {streakAnalysis.map((streak, index) => (
                   <div key={index} className="text-center">
                     <h4 className="text-sm font-medium text-muted-foreground mb-2">{streak.type}</h4>
-                    <p className={`text-xl font-bold ${streak.color}`}>{streak.value}</p>
+                    <p className={`text-lg md:text-xl font-bold ${streak.color}`}>{streak.value}</p>
                   </div>
                 ))}
               </div>
@@ -125,12 +135,12 @@ export function WinLossAnalysis() {
               <CardTitle>Win Rate Trend Over Time</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={winLossOverTime} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                  <LineChart data={winLossOverTime} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <YAxis
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
                       tickLine={false}
                       axisLine={false}
                       tickFormatter={(value) => `${value}%`}
@@ -141,7 +151,7 @@ export function WinLossAnalysis() {
                       formatter={(value: number) => [`${value}%`, "Win Rate"]}
                       cursor={{ stroke: "hsl(var(--muted-foreground))" }}
                     />
-                    <Line type="monotone" dataKey="winRate" stroke="#10b981" strokeWidth={3} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="winRate" stroke="#10b981" strokeWidth={3} activeDot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -153,11 +163,11 @@ export function WinLossAnalysis() {
               <CardTitle>Monthly Win/Loss Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={winLossOverTime} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                  <BarChart data={winLossOverTime} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
                     <Tooltip />
                     <Bar dataKey="wins" fill="#10b981" name="Wins" radius={[2, 2, 0, 0]} />
@@ -177,14 +187,17 @@ export function WinLossAnalysis() {
             <CardContent>
               <div className="space-y-4">
                 {assetPerformance.map((asset, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg space-y-3 sm:space-y-0"
+                  >
                     <div className="flex items-center space-x-4">
                       <div>
                         <h4 className="font-medium">{asset.asset}</h4>
                         <p className="text-sm text-muted-foreground">{asset.wins + asset.losses} total trades</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-6">
+                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 sm:space-x-6">
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Win Rate</p>
                         <Badge
@@ -222,11 +235,11 @@ export function WinLossAnalysis() {
               <CardTitle>Performance by Time of Day</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] w-full">
+              <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={timeAnalysis} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="hour" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+                  <BarChart data={timeAnalysis} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
                     <Tooltip />
                     <Bar dataKey="wins" fill="#10b981" name="Wins" radius={[2, 2, 0, 0]} />
@@ -237,14 +250,14 @@ export function WinLossAnalysis() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Best Trading Hours</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {timeAnalysis
+                  {[...timeAnalysis]
                     .sort((a, b) => b.winRate - a.winRate)
                     .slice(0, 3)
                     .map((time, index) => (
@@ -268,15 +281,17 @@ export function WinLossAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {timeAnalysis
+                  {[...timeAnalysis]
                     .sort((a, b) => b.wins + b.losses - (a.wins + a.losses))
                     .slice(0, 3)
                     .map((time, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <span className="font-medium">{time.hour}</span>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium">{time.wins + time.losses} trades</span>
-                          <Badge variant="outline">{time.winRate}% win rate</Badge>
+                        <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+                          <span className="font-medium text-sm">{time.wins + time.losses} trades</span>
+                          <Badge variant="outline" className="text-xs">
+                            {time.winRate}% win rate
+                          </Badge>
                         </div>
                       </div>
                     ))}

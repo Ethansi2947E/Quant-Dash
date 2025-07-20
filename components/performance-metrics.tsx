@@ -56,14 +56,14 @@ export function PerformanceMetrics() {
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric, index) => (
         <Card key={index}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metric.value}</div>
+            <div className="text-xl md:text-2xl font-bold">{metric.value}</div>
             <p className={`text-xs ${metric.color}`}>{metric.change} from last month</p>
             {metric.title === "Max Drawdown" && (
               <Progress value={Math.abs(Number.parseFloat(metric.value))} className="mt-2" />

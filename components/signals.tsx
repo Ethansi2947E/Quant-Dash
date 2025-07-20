@@ -100,7 +100,7 @@ export function Signals() {
     setTimeout(() => setIsRefreshing(false), 1000)
   }
 
-  const filteredSignals = signals.filter(
+  const filteredSignals = [...signals].filter(
     (signal) =>
       signal.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
       signal.type.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -113,10 +113,10 @@ export function Signals() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center">
-        <CardTitle>Trading Signals</CardTitle>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative w-40 md:w-60">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0">
+        <CardTitle className="flex-1">Trading Signals</CardTitle>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="relative w-full sm:w-40 md:w-60">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search signals..."
@@ -125,99 +125,108 @@ export function Signals() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" size="sm" className="h-8 gap-1" onClick={handleRefresh}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 w-full sm:w-auto bg-transparent"
+            onClick={handleRefresh}
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Confidence</TableHead>
-                <TableHead className="text-right">Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredSignals.map((signal) => (
-                <TableRow key={signal.id} className="group animate-fadeIn">
-                  <TableCell>{formatDate(signal.timestamp)}</TableCell>
-                  <TableCell className="font-medium">{signal.symbol}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={signal.type === "buy" ? "default" : "secondary"}
-                      className={`${signal.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white`}
-                    >
-                      {signal.type.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>${signal.price.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={`${
-                        signal.confidence === "high"
-                          ? "border-green-500 text-green-500"
-                          : signal.confidence === "medium"
-                            ? "border-yellow-500 text-yellow-500"
-                            : "border-red-500 text-red-500"
-                      }`}
-                    >
-                      {signal.confidence.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedSignal(signal)}>
-                          <Info className="h-4 w-4" />
-                          <span className="sr-only">View signal details</span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {signal.type.toUpperCase()} Signal for {signal.symbol}
-                          </DialogTitle>
-                          <DialogDescription>Generated on {formatDate(signal.timestamp)}</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="text-sm font-medium text-muted-foreground">Signal Type</h4>
-                              <p className="font-medium">{signal.type.toUpperCase()}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium text-muted-foreground">Price</h4>
-                              <p className="font-medium">${signal.price.toFixed(2)}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium text-muted-foreground">Confidence</h4>
-                              <p className="font-medium">{signal.confidence.toUpperCase()}</p>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium text-muted-foreground">Symbol</h4>
-                              <p className="font-medium">{signal.symbol}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">Signal Explanation</h4>
-                            <p className="mt-1 text-sm">{signal.explanation}</p>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
+        <div className="overflow-x-auto">
+          <div className="rounded-md border min-w-[700px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[140px]">Time</TableHead>
+                  <TableHead className="min-w-[100px]">Symbol</TableHead>
+                  <TableHead className="min-w-[80px]">Type</TableHead>
+                  <TableHead className="min-w-[100px]">Price</TableHead>
+                  <TableHead className="min-w-[100px]">Confidence</TableHead>
+                  <TableHead className="text-right min-w-[80px]">Details</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredSignals.map((signal) => (
+                  <TableRow key={signal.id} className="group animate-fadeIn">
+                    <TableCell className="text-sm">{formatDate(signal.timestamp)}</TableCell>
+                    <TableCell className="font-medium">{signal.symbol}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={signal.type === "buy" ? "default" : "secondary"}
+                        className={`${signal.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white text-xs`}
+                      >
+                        {signal.type.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm">${signal.price.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${
+                          signal.confidence === "high"
+                            ? "border-green-500 text-green-500"
+                            : signal.confidence === "medium"
+                              ? "border-yellow-500 text-yellow-500"
+                              : "border-red-500 text-red-500"
+                        }`}
+                      >
+                        {signal.confidence.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={() => setSelectedSignal(signal)}>
+                            <Info className="h-4 w-4" />
+                            <span className="sr-only">View signal details</span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md mx-4">
+                          <DialogHeader>
+                            <DialogTitle className="text-base">
+                              {signal.type.toUpperCase()} Signal for {signal.symbol}
+                            </DialogTitle>
+                            <DialogDescription className="text-sm">
+                              Generated on {formatDate(signal.timestamp)}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <h4 className="text-sm font-medium text-muted-foreground">Signal Type</h4>
+                                <p className="font-medium">{signal.type.toUpperCase()}</p>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium text-muted-foreground">Price</h4>
+                                <p className="font-medium">${signal.price.toFixed(2)}</p>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium text-muted-foreground">Confidence</h4>
+                                <p className="font-medium">{signal.confidence.toUpperCase()}</p>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium text-muted-foreground">Symbol</h4>
+                                <p className="font-medium">{signal.symbol}</p>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium text-muted-foreground">Signal Explanation</h4>
+                              <p className="mt-1 text-sm">{signal.explanation}</p>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </CardContent>
     </Card>

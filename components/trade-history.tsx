@@ -49,7 +49,7 @@ export function TradeHistory() {
       trade.type.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const sortedTrades = [...filteredTrades].sort((a, b) => {
+  const sortedTrades = Array.from(filteredTrades).sort((a, b) => {
     switch (sortBy) {
       case "Date (Newest)":
         return new Date(b.openTime).getTime() - new Date(a.openTime).getTime()
@@ -71,8 +71,8 @@ export function TradeHistory() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="relative w-64">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search trades..."
@@ -83,9 +83,9 @@ export function TradeHistory() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-1">
-                  <span>Sort by: {sortBy}</span>
-                  <ChevronDown className="h-4 w-4" />
+                <Button variant="outline" className="gap-1 w-full sm:w-auto bg-transparent">
+                  <span className="truncate">Sort by: {sortBy}</span>
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -98,48 +98,52 @@ export function TradeHistory() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Open Time</TableHead>
-                  <TableHead>Close Time</TableHead>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Open Price</TableHead>
-                  <TableHead>Close Price</TableHead>
-                  <TableHead className="text-right">P/L</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedTrades.map((trade) => (
-                  <TableRow key={trade.id}>
-                    <TableCell>{formatDate(trade.openTime)}</TableCell>
-                    <TableCell>{formatDate(trade.closeTime)}</TableCell>
-                    <TableCell className="font-medium">{trade.symbol}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={trade.type === "buy" ? "default" : "secondary"}
-                        className={`${trade.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white`}
-                      >
-                        {trade.type.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{trade.size}</TableCell>
-                    <TableCell>${trade.openPrice.toFixed(2)}</TableCell>
-                    <TableCell>${trade.closePrice.toFixed(2)}</TableCell>
-                    <TableCell className="text-right">
-                      <span className={`font-medium ${trade.status === "win" ? "text-green-500" : "text-red-500"}`}>
-                        {trade.status === "win" ? "+" : ""}${Math.abs(trade.profitLoss).toFixed(2)} (
-                        {trade.status === "win" ? "+" : ""}
-                        {trade.profitLossPercentage.toFixed(2)}%)
-                      </span>
-                    </TableCell>
+          <div className="overflow-x-auto">
+            <div className="rounded-md border min-w-[900px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[140px]">Open Time</TableHead>
+                    <TableHead className="min-w-[140px]">Close Time</TableHead>
+                    <TableHead className="min-w-[100px]">Symbol</TableHead>
+                    <TableHead className="min-w-[80px]">Type</TableHead>
+                    <TableHead className="min-w-[80px]">Size</TableHead>
+                    <TableHead className="min-w-[100px]">Open Price</TableHead>
+                    <TableHead className="min-w-[100px]">Close Price</TableHead>
+                    <TableHead className="text-right min-w-[120px]">P/L</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {sortedTrades.map((trade) => (
+                    <TableRow key={trade.id}>
+                      <TableCell className="text-sm">{formatDate(trade.openTime)}</TableCell>
+                      <TableCell className="text-sm">{formatDate(trade.closeTime)}</TableCell>
+                      <TableCell className="font-medium">{trade.symbol}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={trade.type === "buy" ? "default" : "secondary"}
+                          className={`${trade.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white text-xs`}
+                        >
+                          {trade.type.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">{trade.size}</TableCell>
+                      <TableCell className="text-sm">${trade.openPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-sm">${trade.closePrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                        <span
+                          className={`font-medium text-sm ${trade.status === "win" ? "text-green-500" : "text-red-500"}`}
+                        >
+                          {trade.status === "win" ? "+" : ""}${Math.abs(trade.profitLoss).toFixed(2)} (
+                          {trade.status === "win" ? "+" : ""}
+                          {trade.profitLossPercentage.toFixed(2)}%)
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </CardContent>

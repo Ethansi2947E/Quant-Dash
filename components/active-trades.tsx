@@ -86,6 +86,7 @@ const activeTrades = [
 
 export function ActiveTrades() {
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const tradesCopy = [...activeTrades]
 
   const handleRefresh = () => {
     setIsRefreshing(true)
@@ -94,12 +95,12 @@ export function ActiveTrades() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center">
-        <CardTitle>Active Trades</CardTitle>
-        <div className="ml-auto flex items-center gap-2">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0">
+        <CardTitle className="flex-1">Active Trades</CardTitle>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1">
+              <Button variant="outline" size="sm" className="h-8 gap-1 w-full sm:w-auto bg-transparent">
                 <Filter className="h-3.5 w-3.5" />
                 <span>Filter</span>
               </Button>
@@ -114,71 +115,80 @@ export function ActiveTrades() {
               <DropdownMenuItem>Losing Trades</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" className="h-8 gap-1" onClick={handleRefresh}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1 w-full sm:w-auto bg-transparent"
+            onClick={handleRefresh}
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Entry Price</TableHead>
-                <TableHead>Current Price</TableHead>
-                <TableHead>Stop Loss</TableHead>
-                <TableHead>Take Profit</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead className="text-right">P/L</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {activeTrades.map((trade) => (
-                <TableRow key={trade.id} className="group animate-fadeIn">
-                  <TableCell className="font-medium">{trade.symbol}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={trade.type === "buy" ? "default" : "secondary"}
-                      className={`${trade.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white`}
-                    >
-                      {trade.type.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>${trade.entryPrice.toFixed(2)}</TableCell>
-                  <TableCell className="relative">
-                    <div className="flex items-center">
-                      ${trade.currentPrice.toFixed(2)}
-                      {trade.currentPrice > trade.entryPrice && trade.type === "buy" ? (
-                        <ArrowUp className="ml-1 h-4 w-4 text-green-500" />
-                      ) : trade.currentPrice < trade.entryPrice && trade.type === "sell" ? (
-                        <ArrowDown className="ml-1 h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowDown className="ml-1 h-4 w-4 text-red-500" />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>${trade.stopLoss.toFixed(2)}</TableCell>
-                  <TableCell>${trade.takeProfit.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-4 w-4 text-muted-foreground" />
-                      {trade.duration}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className={`font-medium ${trade.status === "profit" ? "text-green-500" : "text-red-500"}`}>
-                      {trade.status === "profit" ? "+" : ""}${Math.abs(trade.profitLoss).toFixed(2)} (
-                      {trade.status === "profit" ? "+" : ""}
-                      {trade.profitLossPercentage.toFixed(2)}%)
-                    </span>
-                  </TableCell>
+        <div className="overflow-x-auto">
+          <div className="rounded-md border min-w-[800px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-[100px]">Symbol</TableHead>
+                  <TableHead className="min-w-[80px]">Type</TableHead>
+                  <TableHead className="min-w-[100px]">Entry Price</TableHead>
+                  <TableHead className="min-w-[110px]">Current Price</TableHead>
+                  <TableHead className="min-w-[100px]">Stop Loss</TableHead>
+                  <TableHead className="min-w-[110px]">Take Profit</TableHead>
+                  <TableHead className="min-w-[100px]">Duration</TableHead>
+                  <TableHead className="text-right min-w-[120px]">P/L</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {tradesCopy.map((trade) => (
+                  <TableRow key={trade.id} className="group animate-fadeIn">
+                    <TableCell className="font-medium">{trade.symbol}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={trade.type === "buy" ? "default" : "secondary"}
+                        className={`${trade.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white text-xs`}
+                      >
+                        {trade.type.toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm">${trade.entryPrice.toFixed(2)}</TableCell>
+                    <TableCell className="relative">
+                      <div className="flex items-center">
+                        <span className="text-sm">${trade.currentPrice.toFixed(2)}</span>
+                        {trade.currentPrice > trade.entryPrice && trade.type === "buy" ? (
+                          <ArrowUp className="ml-1 h-3 w-3 text-green-500" />
+                        ) : trade.currentPrice < trade.entryPrice && trade.type === "sell" ? (
+                          <ArrowDown className="ml-1 h-3 w-3 text-green-500" />
+                        ) : (
+                          <ArrowDown className="ml-1 h-3 w-3 text-red-500" />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm">${trade.stopLoss.toFixed(2)}</TableCell>
+                    <TableCell className="text-sm">${trade.takeProfit.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm">{trade.duration}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span
+                        className={`font-medium text-sm ${trade.status === "profit" ? "text-green-500" : "text-red-500"}`}
+                      >
+                        {trade.status === "profit" ? "+" : ""}${Math.abs(trade.profitLoss).toFixed(2)} (
+                        {trade.status === "profit" ? "+" : ""}
+                        {trade.profitLossPercentage.toFixed(2)}%)
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </CardContent>
     </Card>

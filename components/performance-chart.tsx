@@ -95,24 +95,25 @@ export function PerformanceChart() {
 
   return (
     <Card className="p-4">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h3 className="text-lg font-medium">Performance Over Time</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {timeframes.map((timeframe) => (
             <Button
               key={timeframe.label}
               variant={selectedTimeframe.label === timeframe.label ? "default" : "outline"}
               size="sm"
               onClick={() => handleTimeframeChange(timeframe)}
+              className="flex-1 sm:flex-none min-w-[60px]"
             >
               {timeframe.label}
             </Button>
           ))}
         </div>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="h-[300px] sm:h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
@@ -126,13 +127,13 @@ export function PerformanceChart() {
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 10 }}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
               tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               domain={["dataMin - 1000", "dataMax + 1000"]}
@@ -149,7 +150,7 @@ export function PerformanceChart() {
               fillOpacity={1}
               fill="url(#colorEquity)"
               strokeWidth={2}
-              activeDot={{ r: 6 }}
+              activeDot={{ r: 4 }}
               name="Equity"
             />
             <Area

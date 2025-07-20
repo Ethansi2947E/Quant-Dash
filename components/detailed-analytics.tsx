@@ -27,14 +27,14 @@ export function DetailedAnalytics() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center">
-        <CardTitle>Performance Analytics</CardTitle>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0">
+        <CardTitle className="flex-1">Performance Analytics</CardTitle>
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent">
-                <span>{asset}</span>
-                <ChevronDown className="h-3.5 w-3.5" />
+              <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent w-full sm:w-auto">
+                <span className="truncate">{asset}</span>
+                <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -52,17 +52,17 @@ export function DetailedAnalytics() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1 w-[240px] justify-start text-left font-normal bg-transparent"
+                className="h-8 gap-1 w-full sm:w-[200px] justify-start text-left font-normal bg-transparent"
               >
-                <CalendarIcon className="h-3.5 w-3.5" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="truncate">{date ? format(date, "PPP") : "Pick a date"}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent">
+          <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent w-full sm:w-auto">
             <Filter className="h-3.5 w-3.5" />
             <span>Filter</span>
           </Button>
