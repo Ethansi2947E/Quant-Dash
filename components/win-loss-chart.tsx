@@ -10,7 +10,7 @@ const winLossData = [
 
 export function WinLossChart() {
   return (
-    <div className="h-[300px] w-full">
+    <div className="h-[250px] sm:h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -21,7 +21,19 @@ export function WinLossChart() {
             outerRadius={100}
             paddingAngle={5}
             dataKey="value"
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+            label={({ name, percent }) => (
+              <text
+                x={0}
+                y={0}
+                fill="white"
+                fontSize="10"
+                fontWeight="bold"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {`${name}: ${(percent * 100).toFixed(1)}%`}
+              </text>
+            )}
             labelLine={false}
           >
             {winLossData.map((entry, index) => (
@@ -29,6 +41,11 @@ export function WinLossChart() {
             ))}
           </Pie>
           <Tooltip
+            contentStyle={{
+              backgroundColor: "#1e293b",
+              border: "1px solid #334155",
+              borderRadius: "0.375rem",
+            }}
             formatter={(value: number, name: string) => [
               `${value} trades (${((value / 245) * 100).toFixed(1)}%)`,
               name,
