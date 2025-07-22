@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowDown, ArrowUp, Clock, Filter, RefreshCw } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -15,111 +15,96 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// Mock data for active trades
-const activeTrades = [
-  {
-    id: "1",
-    symbol: "BTC/USD",
-    type: "buy",
-    entryPrice: 42350.75,
-    currentPrice: 43100.25,
-    stopLoss: 41500.0,
-    takeProfit: 45000.0,
-    duration: "2h 15m",
-    status: "profit",
-    profitLoss: 749.5,
-    profitLossPercentage: 1.77,
-  },
-  {
-    id: "2",
-    symbol: "ETH/USD",
-    type: "buy",
-    entryPrice: 2250.5,
-    currentPrice: 2310.75,
-    stopLoss: 2150.0,
-    takeProfit: 2400.0,
-    duration: "4h 30m",
-    status: "profit",
-    profitLoss: 60.25,
-    profitLossPercentage: 2.68,
-  },
-  {
-    id: "3",
-    symbol: "SOL/USD",
-    type: "sell",
-    entryPrice: 105.25,
-    currentPrice: 102.5,
-    stopLoss: 110.0,
-    takeProfit: 95.0,
-    duration: "1h 45m",
-    status: "profit",
-    profitLoss: 2.75,
-    profitLossPercentage: 2.61,
-  },
-  {
-    id: "4",
-    symbol: "XRP/USD",
-    type: "buy",
-    entryPrice: 0.5125,
-    currentPrice: 0.495,
-    stopLoss: 0.48,
-    takeProfit: 0.55,
-    duration: "3h 10m",
-    status: "loss",
-    profitLoss: -0.0175,
-    profitLossPercentage: -3.42,
-  },
-  {
-    id: "5",
-    symbol: "ADA/USD",
-    type: "buy",
-    entryPrice: 0.385,
-    currentPrice: 0.3825,
-    stopLoss: 0.37,
-    takeProfit: 0.41,
-    duration: "5h 25m",
-    status: "loss",
-    profitLoss: -0.0025,
-    profitLossPercentage: -0.65,
-  },
-]
+interface ActiveTrade {
+  ticket: string
+  symbol: string
+  order_type: "buy" | "sell"
+  open_time: number
+  open_price: number
+  current_price: number
+  volume: number
+  sl: number
+  tp: number
+  profit: number
+  swap: number
+  comment: string
+  magic: number
+}
 
 export function ActiveTrades() {
+  const [trades, setTrades] = useState<ActiveTrade[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const tradesCopy = [...activeTrades]
 
-  const handleRefresh = () => {
+  const fetchTrades = async () => {
+    if (isRefreshing) return
     setIsRefreshing(true)
-    setTimeout(() => setIsRefreshing(false), 1000)
+    try {
+      const res = await fetch("/api/active-trades")
+      if (!res.ok) {
+        throw new Error(`Failed to fetch active trades: ${res.statusText}`)
+      }
+      const data: ActiveTrade[] = await res.json()
+      setTrades(data)
+      setError(null)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsRefreshing(false)
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTrades()
+    const intervalId = setInterval(fetchTrades, 5000) // Refresh every 5 seconds
+    return () => clearInterval(intervalId)
+  }, [])
+
+  const formatTimestamp = (timestamp: number) => {
+    if (!timestamp) return "N/A"
+    return new Date(timestamp * 1000).toLocaleString()
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Trades</CardTitle>
+        </CardHeader>
+        <CardContent className="flex h-60 items-center justify-center">
+          <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="ml-2">Loading active trades...</span>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Trades</CardTitle>
+        </CardHeader>
+        <CardContent className="flex h-60 items-center justify-center">
+          <span className="text-red-500">Error: {error}</span>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0">
-        <CardTitle className="flex-1">Active Trades</CardTitle>
+        <CardTitle className="flex-1">Active Trades ({trades.length})</CardTitle>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1 w-full sm:w-auto bg-transparent">
-                <Filter className="h-3.5 w-3.5" />
-                <span>Filter</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>All Trades</DropdownMenuItem>
-              <DropdownMenuItem>Buy Orders</DropdownMenuItem>
-              <DropdownMenuItem>Sell Orders</DropdownMenuItem>
-              <DropdownMenuItem>Profitable Trades</DropdownMenuItem>
-              <DropdownMenuItem>Losing Trades</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <Button
             variant="outline"
             size="sm"
             className="h-8 gap-1 w-full sm:w-auto bg-transparent"
-            onClick={handleRefresh}
+            onClick={fetchTrades}
+            disabled={isRefreshing}
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -128,64 +113,70 @@ export function ActiveTrades() {
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <div className="rounded-md border min-w-[800px]">
+          <div className="rounded-md border min-w-[900px]">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[100px]">Symbol</TableHead>
-                  <TableHead className="min-w-[80px]">Type</TableHead>
-                  <TableHead className="min-w-[100px]">Entry Price</TableHead>
-                  <TableHead className="min-w-[110px]">Current Price</TableHead>
-                  <TableHead className="min-w-[100px]">Stop Loss</TableHead>
-                  <TableHead className="min-w-[110px]">Take Profit</TableHead>
-                  <TableHead className="min-w-[100px]">Duration</TableHead>
-                  <TableHead className="text-right min-w-[120px]">P/L</TableHead>
+                  <TableHead>Symbol</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Open Time</TableHead>
+                  <TableHead>Open Price</TableHead>
+                  <TableHead>Current Price</TableHead>
+                  <TableHead>Volume</TableHead>
+                  <TableHead>SL / TP</TableHead>
+                  <TableHead className="text-right">Profit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tradesCopy.map((trade) => (
-                  <TableRow key={trade.id} className="group animate-fadeIn">
-                    <TableCell className="font-medium">{trade.symbol}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={trade.type === "buy" ? "default" : "secondary"}
-                        className={`${trade.type === "buy" ? "bg-green-500" : "bg-red-500"} text-white text-xs`}
-                      >
-                        {trade.type.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">${trade.entryPrice.toFixed(2)}</TableCell>
-                    <TableCell className="relative">
-                      <div className="flex items-center">
-                        <span className="text-sm">${trade.currentPrice.toFixed(2)}</span>
-                        {trade.currentPrice > trade.entryPrice && trade.type === "buy" ? (
-                          <ArrowUp className="ml-1 h-3 w-3 text-green-500" />
-                        ) : trade.currentPrice < trade.entryPrice && trade.type === "sell" ? (
-                          <ArrowDown className="ml-1 h-3 w-3 text-green-500" />
-                        ) : (
-                          <ArrowDown className="ml-1 h-3 w-3 text-red-500" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">${trade.stopLoss.toFixed(2)}</TableCell>
-                    <TableCell className="text-sm">${trade.takeProfit.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm">{trade.duration}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span
-                        className={`font-medium text-sm ${trade.status === "profit" ? "text-green-500" : "text-red-500"}`}
-                      >
-                        {trade.status === "profit" ? "+" : ""}${Math.abs(trade.profitLoss).toFixed(2)} (
-                        {trade.status === "profit" ? "+" : ""}
-                        {trade.profitLossPercentage.toFixed(2)}%)
-                      </span>
+                {trades.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-24 text-center">
+                      No active trades found.
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  trades.map((trade) => {
+                    const status = trade.profit >= 0 ? "profit" : "loss"
+                    const isBuy = trade.order_type === "buy"
+                    const isPriceUp = trade.current_price > trade.open_price
+                    return (
+                      <TableRow key={trade.ticket}>
+                        <TableCell className="font-medium">{trade.symbol}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={isBuy ? "default" : "secondary"}
+                            className={`${isBuy ? "bg-green-500" : "bg-red-500"} text-white text-xs`}
+                          >
+                            {trade.order_type.toUpperCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">{formatTimestamp(trade.open_time)}</TableCell>
+                        <TableCell className="text-sm">${trade.open_price.toFixed(5)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <span>${trade.current_price.toFixed(5)}</span>
+                            {(isBuy && isPriceUp) || (!isBuy && !isPriceUp) ? (
+                              <ArrowUp className="ml-1 h-3 w-3 text-green-500" />
+                            ) : (
+                              <ArrowDown className="ml-1 h-3 w-3 text-red-500" />
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">{trade.volume}</TableCell>
+                        <TableCell className="text-sm">
+                          ${trade.sl.toFixed(5)} / ${trade.tp.toFixed(5)}
+                        </TableCell>
+                        <TableCell
+                          className={`text-right font-medium ${
+                            status === "profit" ? "text-green-500" : "text-red-500"
+                          }`}
+                        >
+                          {status === "profit" ? "+" : ""}${trade.profit.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
               </TableBody>
             </Table>
           </div>

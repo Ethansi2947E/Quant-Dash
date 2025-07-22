@@ -1,30 +1,43 @@
-# Trading bot dashboard
+# Quant-Dash
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+This directory contains the Next.js frontend for the Trading Bot dashboard. It provides a user interface to visualize trading performance, view trade history, and monitor real-time signals from the API.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/ethansi2947es-projects/v0-trading-bot-dashboard)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/ANWxqDBWgfx)
+## 🚀 Getting Started
 
-## Overview
+### Prerequisites
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- Node.js (v18 or later recommended)
+- `pnpm` package manager. If you don't have it, install it globally:
+  ```bash
+  npm install -g pnpm
+  ```
 
-## Deployment
+### Installation
 
-Your project is live at:
+1.  **Navigate to the dashboard directory:**
+    ```bash
+    cd /path/to/your/Trading_Bot/Quant-Dash
+    ```
 
-**[https://vercel.com/ethansi2947es-projects/v0-trading-bot-dashboard](https://vercel.com/ethansi2947es-projects/v0-trading-bot-dashboard)**
+2.  **Install the dependencies using `pnpm`:**
+    ```bash
+    pnpm install
+    ```
 
-## Build your app
+### Running the Development Server
 
-Continue building your app on:
+1.  Make sure the [Trading Bot API](../api/README.md) is running.
 
-**[https://v0.dev/chat/projects/ANWxqDBWgfx](https://v0.dev/chat/projects/ANWxqDBWgfx)**
+2.  From the `Quant-Dash` directory, start the development server:
+    ```bash
+    pnpm dev
+    ```
 
-## How It Works
+3.  Open your browser and navigate to `http://localhost:3000` to see the dashboard.
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## Available Scripts
+
+-   `pnpm dev`: Starts the development server.
+-   `pnpm build`: Creates a production-ready build of the application.
+-   `pnpm start`: Starts the application in production mode (requires a build first).
+-   `pnpm lint`: Lints the codebase for potential errors.

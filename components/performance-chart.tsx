@@ -5,50 +5,22 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-// Enhanced mock data with more detailed information
-const generateMockData = (days: number) => {
-  const data = []
-  let equity = 10000
-  const startDate = new Date()
-  startDate.setDate(startDate.getDate() - days)
-
-  for (let i = 0; i < days; i++) {
-    const date = new Date(startDate)
-    date.setDate(date.getDate() + i)
-
-    // Create more realistic price movements
-    const dailyChange = (Math.random() - 0.45) * 200 // Slightly biased towards positive
-    equity += dailyChange
-
-    // Calculate drawdown
-    const drawdown = dailyChange < 0 ? dailyChange : 0
-
-    data.push({
-      date: date.toISOString().split("T")[0],
-      equity: Math.round(equity * 100) / 100,
-      drawdown: Math.round(drawdown * 100) / 100,
-      volume: Math.floor(Math.random() * 1000) + 500,
-    })
-  }
-  return data
-}
-
 const timeframes = [
-  { label: "1W", days: 7 },
-  { label: "1M", days: 30 },
-  { label: "3M", days: 90 },
-  { label: "6M", days: 180 },
-  { label: "1Y", days: 365 },
+  { label: "1W" },
+  { label: "1M" },
+  { label: "3M" },
+  { label: "6M" },
+  { label: "1Y" },
 ]
 
-export function PerformanceChart() {
+export function PerformanceChart({ chartData }: { chartData: Record<string, any[]> }) {
   const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]) // Default to 1M
-  const [data, setData] = useState(() => generateMockData(selectedTimeframe.days))
 
   const handleTimeframeChange = (timeframe: (typeof timeframes)[0]) => {
     setSelectedTimeframe(timeframe)
-    setData(generateMockData(timeframe.days))
   }
+
+  const data = chartData?.[selectedTimeframe.label] || []
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
