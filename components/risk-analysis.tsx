@@ -1,35 +1,70 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Line, LineChart, CartesianGrid } from "recharts"
 
-// Mock data for risk analysis
-const drawdownData = [
-  { period: "Jan", drawdown: -2.1 },
-  { period: "Feb", drawdown: -1.5 },
-  { period: "Mar", drawdown: -4.2 },
-  { period: "Apr", drawdown: -0.8 },
-  { period: "May", drawdown: -3.1 },
-  { period: "Jun", drawdown: -8.2 },
-]
+interface RiskMetric {
+  metric: string;
+  value: string | number;
+  description: string;
+}
 
-const volatilityData = [
-  { period: "Week 1", volatility: 8.5 },
-  { period: "Week 2", volatility: 12.3 },
-  { period: "Week 3", volatility: 15.7 },
-  { period: "Week 4", volatility: 9.2 },
-]
+interface ChartPoint {
+  period: string;
+  [key: string]: any;
+}
 
-const riskMetrics = [
-  { metric: "Value at Risk (95%)", value: "-$1,250", description: "Maximum expected loss over 1 day" },
-  { metric: "Expected Shortfall", value: "-$1,850", description: "Average loss beyond VaR" },
-  { metric: "Maximum Consecutive Losses", value: "4", description: "Longest losing streak" },
-  { metric: "Recovery Factor", value: "2.87", description: "Net profit / Max drawdown" },
-  { metric: "Ulcer Index", value: "3.2", description: "Measure of downside risk" },
-  { metric: "Sterling Ratio", value: "1.95", description: "Return / Average drawdown" },
-]
+interface RiskData {
+  metrics: RiskMetric[];
+  drawdownChart: ChartPoint[];
+  volatilityChart: ChartPoint[];
+}
 
 export function RiskAnalysis() {
+  const [riskData, setRiskData] = useState<RiskData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/performance")
+        const result = await response.json()
+        if (result.riskAnalysis) {
+          setRiskData(result.riskAnalysis)
+        }
+      } catch (error) {
+        console.error("Failed to fetch risk analysis data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+  
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+             <div key={i} className="h-24 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+           <div className="h-[350px] animate-pulse rounded-xl bg-muted" />
+           <div className="h-[350px] animate-pulse rounded-xl bg-muted" />
+        </div>
+      </div>
+    )
+  }
+
+  if (!riskData) {
+    return <div className="text-center text-muted-foreground">No risk data available.</div>
+  }
+
+  const { metrics: riskMetrics, drawdownChart: drawdownData, volatilityChart: volatilityData } = riskData
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -60,11 +95,11 @@ export function RiskAnalysis() {
                     tick={{ fontSize: 12 }}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${value}%`}
+                    tickFormatter={(value) => `${value.toFixed(1)}%`}
                   />
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
                   <Tooltip
-                    formatter={(value: number) => [`${value}%`, "Drawdown"]}
+                    formatter={(value: number) => [`${value.toFixed(2)}%`, "Drawdown"]}
                     cursor={{ fill: "hsl(var(--muted))" }}
                     contentStyle={{
                       backgroundColor: "hsl(var(--background))",

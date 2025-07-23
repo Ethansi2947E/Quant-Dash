@@ -1,29 +1,72 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
-// Mock data for monthly performance
-const monthlyData = [
-  { month: "January 2024", return: 4.2, trades: 28, winRate: 71.4, bestDay: 2.1, worstDay: -1.3 },
-  { month: "February 2024", return: 2.8, trades: 24, winRate: 66.7, bestDay: 1.8, worstDay: -0.9 },
-  { month: "March 2024", return: -1.5, trades: 31, winRate: 58.1, bestDay: 1.5, worstDay: -2.8 },
-  { month: "April 2024", return: 5.7, trades: 26, winRate: 73.1, bestDay: 2.4, worstDay: -1.1 },
-  { month: "May 2024", return: 3.9, trades: 29, winRate: 69.0, bestDay: 2.0, worstDay: -1.6 },
-  { month: "June 2024", return: 8.4, trades: 27, winRate: 77.8, bestDay: 3.2, worstDay: -0.8 },
-]
+interface MonthlyData {
+  month: string;
+  return: number;
+  trades: number;
+  winRate: number;
+  bestDay: number;
+  worstDay: number;
+}
 
-const yearlyStats = [
-  { metric: "Best Month", value: "June 2024 (+8.4%)" },
-  { metric: "Worst Month", value: "March 2024 (-1.5%)" },
-  { metric: "Positive Months", value: "5 out of 6 (83.3%)" },
-  { metric: "Average Monthly Return", value: "+3.9%" },
-  { metric: "Monthly Volatility", value: "3.2%" },
-  { metric: "Consistency Score", value: "8.5/10" },
-]
+interface YearlyStat {
+  metric: string;
+  value: string;
+}
+
+interface MonthlyPerformanceData {
+  monthlyData: MonthlyData[];
+  yearlyStats: YearlyStat[];
+}
 
 export function MonthlyPerformance() {
+  const [performanceData, setPerformanceData] = useState<MonthlyPerformanceData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/performance")
+        const result = await response.json()
+        if (result.monthlyBreakdown) {
+          setPerformanceData(result.monthlyBreakdown)
+        }
+      } catch (error) {
+        console.error("Failed to fetch monthly performance data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
+        <Card>
+          <div className="h-96 animate-pulse rounded-xl bg-muted" />
+        </Card>
+      </div>
+    )
+  }
+  
+  if (!performanceData) {
+     return <div className="text-center text-muted-foreground">No monthly data available.</div>
+  }
+
+  const { yearlyStats, monthlyData } = performanceData;
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
