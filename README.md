@@ -2,6 +2,10 @@
 
 This directory contains the Next.js frontend for the Trading Bot dashboard. It provides a user interface to visualize trading performance, view trade history, and monitor real-time signals from the API.
 
+This dashboard is the frontend component of the main **Quant-Bot** project. For details on the trading bot itself, including its architecture, strategies, and setup, please visit the main repository:
+
+- **Main Repository**: [https://github.com/Ethansi2947E/Quant-Bot](https://github.com/Ethansi2947E/Quant-Bot)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
