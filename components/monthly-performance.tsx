@@ -1,50 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-
-interface MonthlyData {
-  month: string;
-  return: number;
-  trades: number;
-  winRate: number;
-  bestDay: number;
-  worstDay: number;
-}
-
-interface YearlyStat {
-  metric: string;
-  value: string;
-}
-
-interface MonthlyPerformanceData {
-  monthlyData: MonthlyData[];
-  yearlyStats: YearlyStat[];
-}
+import { usePerformanceData } from "@/hooks/use-performance-data"
 
 export function MonthlyPerformance() {
-  const [performanceData, setPerformanceData] = useState<MonthlyPerformanceData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        const response = await fetch("/api/performance")
-        const result = await response.json()
-        if (result.monthlyBreakdown) {
-          setPerformanceData(result.monthlyBreakdown)
-        }
-      } catch (error) {
-        console.error("Failed to fetch monthly performance data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  const { data, loading } = usePerformanceData()
 
   if (loading) {
     return (
@@ -61,8 +23,10 @@ export function MonthlyPerformance() {
     )
   }
   
-  if (!performanceData) {
-     return <div className="text-center text-muted-foreground">No monthly data available.</div>
+  const performanceData = data?.monthlyBreakdown;
+
+  if (!performanceData || !performanceData.monthlyData || performanceData.monthlyData.length === 0) {
+     return <div className="text-center text-muted-foreground">No monthly data available for the selected period.</div>
   }
 
   const { yearlyStats, monthlyData } = performanceData;

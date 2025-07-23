@@ -2,39 +2,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { useEffect, useState } from "react"
+import { usePerformanceData } from "@/hooks/use-performance-data"
 
 interface Metric {
-  title: string
-  value: string
-  change: string
-  color: string
+  title: string;
+  value: string;
+  change: string;
+  color: string;
 }
 
 export function PerformanceMetrics() {
-  const [metrics, setMetrics] = useState<Metric[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        const response = await fetch("/api/performance")
-        const data = await response.json()
-        // The API returns the overview data under the "overview" key
-        if (data.overview && data.overview.metrics) {
-          setMetrics(data.overview.metrics)
-        }
-      } catch (error) {
-        console.error("Failed to fetch performance metrics:", error)
-        // Optionally set some error state to show in the UI
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
+  const { data, loading } = usePerformanceData()
 
   if (loading) {
     return (
@@ -54,9 +32,11 @@ export function PerformanceMetrics() {
     )
   }
 
+  const metrics: Metric[] = data?.overview?.metrics || []
+
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-      {metrics.map((metric, index) => (
+      {metrics.map((metric: Metric, index: number) => (
         <Card key={index}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>

@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Line, LineChart, CartesianGrid } from "recharts"
+import { usePerformanceData } from "@/hooks/use-performance-data"
 
 interface RiskMetric {
   metric: string;
@@ -10,38 +10,8 @@ interface RiskMetric {
   description: string;
 }
 
-interface ChartPoint {
-  period: string;
-  [key: string]: any;
-}
-
-interface RiskData {
-  metrics: RiskMetric[];
-  drawdownChart: ChartPoint[];
-  volatilityChart: ChartPoint[];
-}
-
 export function RiskAnalysis() {
-  const [riskData, setRiskData] = useState<RiskData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        const response = await fetch("/api/performance")
-        const result = await response.json()
-        if (result.riskAnalysis) {
-          setRiskData(result.riskAnalysis)
-        }
-      } catch (error) {
-        console.error("Failed to fetch risk analysis data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
+  const { data, loading } = usePerformanceData()
   
   if (loading) {
     return (
@@ -59,6 +29,8 @@ export function RiskAnalysis() {
     )
   }
 
+  const riskData = data?.riskAnalysis
+
   if (!riskData) {
     return <div className="text-center text-muted-foreground">No risk data available.</div>
   }
@@ -68,7 +40,7 @@ export function RiskAnalysis() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {riskMetrics.map((item, index) => (
+        {riskMetrics.map((item: RiskMetric, index: number) => (
           <Card key={index}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">{item.metric}</CardTitle>

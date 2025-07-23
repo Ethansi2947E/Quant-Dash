@@ -23,12 +23,13 @@ export default function DashboardPage() {
   const [accountInfo, setAccountInfo] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [timeframe, setTimeframe] = useState("1W")
 
   useEffect(() => {
     async function fetchDashboardData(isInitialLoad = false) {
       if (isInitialLoad) setLoading(true)
       try {
-        const res = await fetch("/api/dashboard")
+        const res = await fetch(`/api/dashboard?timeframe=${timeframe}`)
         if (!res.ok) throw new Error("Failed to fetch dashboard data")
         const jsonData = await res.json()
         setData(jsonData)
@@ -61,15 +62,16 @@ export default function DashboardPage() {
     fetchAccountInfo()
 
     // Set up polling
-    const accountInfoIntervalId = setInterval(fetchAccountInfo, 5000) // Refresh live equity every 5s
-    const dashboardDataIntervalId = setInterval(() => fetchDashboardData(false), 15000) // Refresh historical KPIs every 15s
+    const accountInfoIntervalId = setInterval(fetchAccountInfo, 5000)
+    // We remove the dashboard polling for now as it will refetch on timeframe change
+    // const dashboardDataIntervalId = setInterval(() => fetchDashboardData(false), 15000)
 
     // Cleanup on component unmount
     return () => {
       clearInterval(accountInfoIntervalId)
-      clearInterval(dashboardDataIntervalId)
+      // clearInterval(dashboardDataIntervalId)
     }
-  }, [])
+  }, [timeframe]) // Refetch when timeframe changes
 
   if (loading) {
     return (
@@ -174,7 +176,12 @@ export default function DashboardPage() {
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <Suspense fallback={<div className="lg:col-span-4 h-[400px] animate-pulse rounded-xl bg-muted" />}>
           <div className="lg:col-span-4">
-            <PerformanceChart />
+            <PerformanceChart 
+              data={data?.performanceChart || []} 
+              loading={loading}
+              selectedTimeframe={timeframe}
+              onTimeframeChange={(newTimeframe: any) => setTimeframe(newTimeframe.label)}
+            />
           </div>
         </Suspense>
         <Card className="lg:col-span-3">

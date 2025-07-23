@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { CalendarIcon, ChevronDown, Filter } from "lucide-react"
+import { CalendarIcon, ChevronDown } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -20,10 +19,10 @@ import { PerformanceChart } from "@/components/performance-chart"
 import { PerformanceMetrics } from "@/components/performance-metrics"
 import { RiskAnalysis } from "@/components/risk-analysis"
 import { MonthlyPerformance } from "@/components/monthly-performance"
+import { usePerformanceData } from "@/hooks/use-performance-data"
 
 export function DetailedAnalytics() {
-  const [date, setDate] = useState<Date>()
-  const [asset, setAsset] = useState<string>("All Assets")
+  const { data, loading, filters, setFilters } = usePerformanceData()
 
   return (
     <Card>
@@ -33,18 +32,18 @@ export function DetailedAnalytics() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent w-full sm:w-auto">
-                <span className="truncate">{asset}</span>
+                <span className="truncate">{filters.asset}</span>
                 <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="max-h-[200px] overflow-y-auto">
               <DropdownMenuLabel>Select Asset</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setAsset("All Assets")}>All Assets</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAsset("BTC/USD")}>BTC/USD</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAsset("ETH/USD")}>ETH/USD</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAsset("SOL/USD")}>SOL/USD</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setAsset("XRP/USD")}>XRP/USD</DropdownMenuItem>
+              {data?.filters.assets.map(asset => (
+                <DropdownMenuItem key={asset} onClick={() => setFilters({ asset })}>
+                  {asset}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
           <Popover>
@@ -52,20 +51,36 @@ export function DetailedAnalytics() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-1 w-full sm:w-[200px] justify-start text-left font-normal bg-transparent"
+                className="h-8 gap-1 w-full sm:w-[240px] justify-start text-left font-normal bg-transparent"
               >
                 <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate">{date ? format(date, "PPP") : "Pick a date"}</span>
+                <span className="truncate">
+                  {filters.dateRange?.from ? (
+                    filters.dateRange.to ? (
+                      <>
+                        {format(filters.dateRange.from, "LLL dd, y")} -{" "}
+                        {format(filters.dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(filters.dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={filters.dateRange?.from}
+                selected={filters.dateRange}
+                onSelect={(range) => setFilters({ dateRange: range })}
+                numberOfMonths={2}
+              />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" size="sm" className="h-8 gap-1 bg-transparent w-full sm:w-auto">
-            <Filter className="h-3.5 w-3.5" />
-            <span>Filter</span>
-          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -82,7 +97,12 @@ export function DetailedAnalytics() {
                 <CardTitle>Equity Curve & Drawdown</CardTitle>
               </CardHeader>
               <CardContent>
-                <PerformanceChart />
+                <PerformanceChart 
+                  data={data?.overview?.performanceChart || []}
+                  loading={loading}
+                  selectedTimeframe={filters.timeframe}
+                  onTimeframeChange={(timeframe: any) => setFilters({ timeframe: timeframe.label })}
+                />
               </CardContent>
             </Card>
           </TabsContent>

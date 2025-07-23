@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useEffect, useState } from "react"
+import { memo } from "react"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,41 +13,19 @@ const timeframes = [
   { label: "1Y" },
 ]
 
-interface ChartDataPoint {
-  date: string;
-  equity: number;
-  drawdown: number;
-  volume?: number; // Volume is optional as it might not be in our new data structure
+interface PerformanceChartProps {
+  data: any[];
+  loading: boolean;
+  selectedTimeframe?: string;
+  onTimeframeChange?: (timeframe: any) => void;
 }
 
-export const PerformanceChart = memo(function PerformanceChart() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[4]) // Default to 1Y
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchData(timeframe: string) {
-      try {
-        setLoading(true)
-        const response = await fetch(`/api/performance?timeframe=${timeframe}`)
-        const result = await response.json()
-        if (result.overview && result.overview.performanceChart) {
-          setChartData(result.overview.performanceChart)
-        }
-      } catch (error) {
-        console.error("Failed to fetch performance chart data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData(selectedTimeframe.label)
-  }, [selectedTimeframe])
-
-  const handleTimeframeChange = (timeframe: (typeof timeframes)[0]) => {
-    setSelectedTimeframe(timeframe)
-  }
-
-  const data = chartData
+export const PerformanceChart = memo(function PerformanceChart({
+  data: chartData,
+  loading,
+  selectedTimeframe,
+  onTimeframeChange,
+}: PerformanceChartProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -100,23 +78,25 @@ export const PerformanceChart = memo(function PerformanceChart() {
     <Card className="p-4">
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
         <h3 className="text-lg font-medium">Performance Over Time</h3>
-        <div className="flex flex-wrap gap-2">
-          {timeframes.map((timeframe) => (
-            <Button
-              key={timeframe.label}
-              variant={selectedTimeframe.label === timeframe.label ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleTimeframeChange(timeframe)}
-              className="flex-1 sm:flex-none min-w-[60px]"
-            >
-              {timeframe.label}
-            </Button>
-          ))}
-        </div>
+        {onTimeframeChange && (
+          <div className="flex flex-wrap gap-2">
+            {timeframes.map((timeframe) => (
+              <Button
+                key={timeframe.label}
+                variant={selectedTimeframe === timeframe.label ? "default" : "outline"}
+                size="sm"
+                onClick={() => onTimeframeChange(timeframe)}
+                className="flex-1 sm:flex-none min-w-[60px]"
+              >
+                {timeframe.label}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="h-[300px] sm:h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
