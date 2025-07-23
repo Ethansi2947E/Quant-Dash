@@ -6,7 +6,7 @@ import { usePerformanceData } from "@/hooks/use-performance-data"
 
 interface RiskMetric {
   metric: string;
-  value: string | number;
+  value: string | number; 
   description: string;
 }
 
