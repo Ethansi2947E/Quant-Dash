@@ -2,52 +2,53 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-// Mock data for win/loss chart
-const winLossData = [
-  { name: "Winning Trades", value: 167, color: "#10b981" },
-  { name: "Losing Trades", value: 78, color: "#ef4444" },
-]
+const COLORS = {
+  "Winning Trades": "#10b981",
+  "Losing Trades": "#ef4444",
+} as const; // Use 'as const' to make keys specific
 
-export function WinLossChart() {
+interface ChartData {
+  name: keyof typeof COLORS; // Ensure name is one of the keys in COLORS
+  value: number;
+}
+
+export function WinLossChart({ data }: { data: ChartData[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-[250px] sm:h-[300px] w-full flex items-center justify-center text-muted-foreground">
+        No data available
+      </div>
+    )
+  }
+  
+  const totalValue = data.reduce((sum, entry) => sum + entry.value, 0);
+
   return (
     <div className="h-[250px] sm:h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={winLossData}
+            data={data}
             cx="50%"
             cy="50%"
             innerRadius={60}
             outerRadius={100}
             paddingAngle={5}
             dataKey="value"
-            label={({ name, percent }) => (
-              <text
-                x={0}
-                y={0}
-                fill="white"
-                fontSize="10"
-                fontWeight="bold"
-                textAnchor="middle"
-                dominantBaseline="middle"
-              >
-                {`${name}: ${(percent * 100).toFixed(1)}%`}
-              </text>
-            )}
             labelLine={false}
           >
-            {winLossData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
             ))}
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1e293b",
-              border: "1px solid #334155",
-              borderRadius: "0.375rem",
+              backgroundColor: "hsl(var(--background))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "0.5rem",
             }}
             formatter={(value: number, name: string) => [
-              `${value} trades (${((value / 245) * 100).toFixed(1)}%)`,
+              `${value} trades (${((value / totalValue) * 100).toFixed(1)}%)`,
               name,
             ]}
           />

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { WinLossChart } from "@/components/win-loss-chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,42 +8,33 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Line, LineCh
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 
-// Mock data for enhanced analysis
-const winLossOverTime = [
-  { date: "Jan", wins: 18, losses: 7, winRate: 72 },
-  { date: "Feb", wins: 15, losses: 9, winRate: 62.5 },
-  { date: "Mar", wins: 22, losses: 9, winRate: 71 },
-  { date: "Apr", wins: 19, losses: 7, winRate: 73 },
-  { date: "May", wins: 24, losses: 5, winRate: 83 },
-  { date: "Jun", wins: 21, losses: 6, winRate: 78 },
-]
-
-const assetPerformance = [
-  { asset: "BTC/USD", wins: 45, losses: 15, winRate: 75, avgWin: 2.3, avgLoss: -1.8 },
-  { asset: "ETH/USD", wins: 38, losses: 22, winRate: 63.3, avgWin: 1.9, avgLoss: -1.5 },
-  { asset: "SOL/USD", wins: 28, losses: 12, winRate: 70, avgWin: 2.1, avgLoss: -1.6 },
-  { asset: "XRP/USD", wins: 22, losses: 18, winRate: 55, avgWin: 1.7, avgLoss: -1.4 },
-  { asset: "ADA/USD", wins: 34, losses: 11, winRate: 75.6, avgWin: 1.8, avgLoss: -1.3 },
-]
-
-const streakAnalysis = [
-  { type: "Current Streak", value: "5 Wins", color: "text-green-500" },
-  { type: "Longest Win Streak", value: "12 Wins", color: "text-green-500" },
-  { type: "Longest Loss Streak", value: "4 Losses", color: "text-red-500" },
-  { type: "Average Win Streak", value: "3.2 Wins", color: "text-blue-500" },
-  { type: "Average Loss Streak", value: "1.8 Losses", color: "text-blue-500" },
-]
-
-const timeAnalysis = [
-  { hour: "00-04", wins: 8, losses: 12, winRate: 40 },
-  { hour: "04-08", wins: 15, losses: 8, winRate: 65.2 },
-  { hour: "08-12", wins: 42, losses: 18, winRate: 70 },
-  { hour: "12-16", wins: 38, losses: 22, winRate: 63.3 },
-  { hour: "16-20", wins: 35, losses: 15, winRate: 70 },
-  { hour: "20-24", wins: 29, losses: 3, winRate: 90.6 },
-]
+// Mock data will be removed.
 
 export function WinLossAnalysis() {
+  const [analysisData, setAnalysisData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const response = await fetch("/api/win-loss")
+        const data = await response.json()
+        setAnalysisData(data)
+      } catch (error) {
+        console.error("Failed to fetch win/loss analysis:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const overview = analysisData?.overview
+  const trends = analysisData?.trends
+  const assetPerformance = analysisData?.assetPerformance || []
+  const timingAnalysis = analysisData?.timingAnalysis
+
   return (
     <div className="container space-y-4 py-4 px-4 md:py-8">
       <Tabs defaultValue="overview" className="space-y-4">
@@ -70,7 +62,7 @@ export function WinLossAnalysis() {
                 <CardTitle>Win/Loss Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <WinLossChart />
+                <WinLossChart data={overview?.winLossDistribution || []} />
               </CardContent>
             </Card>
             <Card>
@@ -78,36 +70,44 @@ export function WinLossAnalysis() {
                 <CardTitle>Key Statistics</CardTitle>
               </CardHeader>
               <CardContent>
+                {loading || !overview ? (
+                  <div className="h-48 animate-pulse rounded-md bg-muted" />
+                ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Win Rate</h4>
-                      <p className="text-xl md:text-2xl font-bold text-green-500">68.2%</p>
-                      <Progress value={68.2} className="mt-1" />
+                      <p className="text-xl md:text-2xl font-bold text-green-500">{overview.keyStatistics.winRate.toFixed(1)}%</p>
+                      <Progress value={overview.keyStatistics.winRate} className="mt-1" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Loss Rate</h4>
-                      <p className="text-xl md:text-2xl font-bold text-red-500">31.8%</p>
-                      <Progress value={31.8} className="mt-1" />
+                      <p className="text-xl md:text-2xl font-bold text-red-500">{overview.keyStatistics.lossRate.toFixed(1)}%</p>
+                      <Progress value={overview.keyStatistics.lossRate} className="mt-1" />
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Profit Factor</h4>
-                      <p className="text-xl md:text-2xl font-bold">2.4</p>
+                      <p className="text-xl md:text-2xl font-bold">{overview.keyStatistics.profitFactor.toFixed(2)}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Risk/Reward</h4>
-                      <p className="text-xl md:text-2xl font-bold">1:2.3</p>
+                      <p className="text-xl md:text-2xl font-bold">1:{overview.keyStatistics.riskRewardRatio.toFixed(1)}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Avg Win</h4>
-                      <p className="text-xl md:text-2xl font-bold text-green-500">+$187</p>
+                      <p className="text-xl md:text-2xl font-bold text-green-500">
+                        +${overview.keyStatistics.averageWin.toFixed(2)}
+                      </p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-muted-foreground">Avg Loss</h4>
-                      <p className="text-xl md:text-2xl font-bold text-red-500">-$82</p>
+                      <p className="text-xl md:text-2xl font-bold text-red-500">
+                        -${overview.keyStatistics.averageLoss.toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -117,14 +117,34 @@ export function WinLossAnalysis() {
               <CardTitle>Streak Analysis</CardTitle>
             </CardHeader>
             <CardContent>
+               {loading || !overview ? (
+                  <div className="h-12 animate-pulse rounded-md bg-muted" />
+                ) : (
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
-                {streakAnalysis.map((streak, index) => (
-                  <div key={index} className="text-center">
-                    <h4 className="text-sm font-medium text-muted-foreground mb-2">{streak.type}</h4>
-                    <p className={`text-lg md:text-xl font-bold ${streak.color}`}>{streak.value}</p>
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Current Streak</h4>
+                    <p className={`text-lg md:text-xl font-bold ${overview.streakAnalysis.currentStreak.type === 'win' ? 'text-green-500' : 'text-red-500'}`}>
+                      {overview.streakAnalysis.currentStreak.value}
+                    </p>
                   </div>
-                ))}
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Longest Win Streak</h4>
+                    <p className="text-lg md:text-xl font-bold text-green-500">{overview.streakAnalysis.longestWinStreak} Wins</p>
+                  </div>
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Longest Loss Streak</h4>
+                    <p className="text-lg md:text-xl font-bold text-red-500">{overview.streakAnalysis.longestLossStreak} Losses</p>
+                  </div>
+                   <div className="text-center">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Average Win Streak</h4>
+                    <p className="text-lg md:text-xl font-bold text-blue-500">{overview.streakAnalysis.averageWinStreak.toFixed(1)} Wins</p>
+                  </div>
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Average Loss Streak</h4>
+                    <p className="text-lg md:text-xl font-bold text-blue-500">{overview.streakAnalysis.averageLossStreak.toFixed(1)} Losses</p>
+                  </div>
               </div>
+               )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -137,8 +157,14 @@ export function WinLossAnalysis() {
             <CardContent>
               <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={winLossOverTime} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <LineChart data={trends?.winRateOverTime || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 10 }} 
+                      tickLine={false} 
+                      axisLine={false}
+                      tickFormatter={(value) => value.substring(0, 3)} // Abbreviate month name
+                    />
                     <YAxis
                       tick={{ fontSize: 10 }}
                       tickLine={false}
@@ -165,7 +191,7 @@ export function WinLossAnalysis() {
             <CardContent>
               <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={winLossOverTime} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <BarChart data={trends?.monthlyDistribution || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
@@ -209,11 +235,15 @@ export function WinLossAnalysis() {
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Avg Win</p>
-                        <p className="font-medium text-green-500">+{asset.avgWin}%</p>
+                        <p className="font-medium text-green-500">
+                          +${asset.avgWin.toFixed(2)}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Avg Loss</p>
-                        <p className="font-medium text-red-500">{asset.avgLoss}%</p>
+                        <p className="font-medium text-red-500">
+                          -${asset.avgLoss.toFixed(2)}
+                        </p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Trades</p>
@@ -237,7 +267,7 @@ export function WinLossAnalysis() {
             <CardContent>
               <div className="h-[250px] sm:h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={timeAnalysis} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <BarChart data={timingAnalysis?.byHour || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <XAxis dataKey="hour" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                     <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
@@ -257,7 +287,7 @@ export function WinLossAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[...timeAnalysis]
+                  {[...(timingAnalysis?.bestHours || [])]
                     .sort((a, b) => b.winRate - a.winRate)
                     .slice(0, 3)
                     .map((time, index) => (
@@ -281,7 +311,7 @@ export function WinLossAnalysis() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[...timeAnalysis]
+                  {[...(timingAnalysis?.mostActiveHours || [])]
                     .sort((a, b) => b.wins + b.losses - (a.wins + a.losses))
                     .slice(0, 3)
                     .map((time, index) => (
