@@ -174,7 +174,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <Suspense fallback={<div className="lg:col-span-4 h-[400px] animate-pulse rounded-xl bg-muted" />}>
           <div className="lg:col-span-4">
-            <PerformanceChart chartData={performanceChart} />
+            <PerformanceChart />
           </div>
         </Suspense>
         <Card className="lg:col-span-3">

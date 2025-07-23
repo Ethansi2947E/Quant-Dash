@@ -2,58 +2,57 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useEffect, useState } from "react"
+
+interface Metric {
+  title: string
+  value: string
+  change: string
+  color: string
+}
 
 export function PerformanceMetrics() {
-  const metrics = [
-    {
-      title: "Total Return",
-      value: "+23.5%",
-      change: "+2.1%",
-      color: "text-green-500",
-    },
-    {
-      title: "Annualized Return",
-      value: "+18.7%",
-      change: "+1.5%",
-      color: "text-green-500",
-    },
-    {
-      title: "Sharpe Ratio",
-      value: "1.85",
-      change: "+0.12",
-      color: "text-green-500",
-    },
-    {
-      title: "Max Drawdown",
-      value: "-8.2%",
-      change: "-1.1%",
-      color: "text-red-500",
-    },
-    {
-      title: "Calmar Ratio",
-      value: "2.28",
-      change: "+0.15",
-      color: "text-green-500",
-    },
-    {
-      title: "Volatility",
-      value: "12.4%",
-      change: "-0.8%",
-      color: "text-green-500",
-    },
-    {
-      title: "Beta",
-      value: "0.73",
-      change: "-0.05",
-      color: "text-green-500",
-    },
-    {
-      title: "Alpha",
-      value: "4.2%",
-      change: "+0.3%",
-      color: "text-green-500",
-    },
-  ]
+  const [metrics, setMetrics] = useState<Metric[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/performance")
+        const data = await response.json()
+        // The API returns the overview data under the "overview" key
+        if (data.overview && data.overview.metrics) {
+          setMetrics(data.overview.metrics)
+        }
+      } catch (error) {
+        console.error("Failed to fetch performance metrics:", error)
+        // Optionally set some error state to show in the UI
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="h-4 bg-gray-200 rounded w-2/4"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

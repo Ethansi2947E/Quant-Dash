@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,14 +13,41 @@ const timeframes = [
   { label: "1Y" },
 ]
 
-export function PerformanceChart({ chartData }: { chartData: Record<string, any[]> }) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[1]) // Default to 1M
+interface ChartDataPoint {
+  date: string;
+  equity: number;
+  drawdown: number;
+  volume?: number; // Volume is optional as it might not be in our new data structure
+}
+
+export const PerformanceChart = memo(function PerformanceChart() {
+  const [selectedTimeframe, setSelectedTimeframe] = useState(timeframes[4]) // Default to 1Y
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData(timeframe: string) {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/performance?timeframe=${timeframe}`)
+        const result = await response.json()
+        if (result.overview && result.overview.performanceChart) {
+          setChartData(result.overview.performanceChart)
+        }
+      } catch (error) {
+        console.error("Failed to fetch performance chart data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData(selectedTimeframe.label)
+  }, [selectedTimeframe])
 
   const handleTimeframeChange = (timeframe: (typeof timeframes)[0]) => {
     setSelectedTimeframe(timeframe)
   }
 
-  const data = chartData?.[selectedTimeframe.label] || []
+  const data = chartData
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -44,7 +71,7 @@ export function PerformanceChart({ chartData }: { chartData: Record<string, any[
     const data = payload[0].payload
     return (
       <div className="rounded-lg border bg-background p-2 shadow-md">
-        <div className="mb-2 font-medium">{formatDate(data.date)}</div>
+        <div className="mb-2 font-medium">{new Date(data.date).toLocaleString()}</div>
         <div className="space-y-1">
           <div className="flex items-center justify-between gap-8">
             <span className="text-sm text-muted-foreground">Equity:</span>
@@ -53,15 +80,19 @@ export function PerformanceChart({ chartData }: { chartData: Record<string, any[
           {data.drawdown < 0 && (
             <div className="flex items-center justify-between gap-8">
               <span className="text-sm text-muted-foreground">Drawdown:</span>
-              <span className="font-medium text-red-500">{formatCurrency(data.drawdown)}</span>
+              <span className="font-medium text-red-500">{`${data.drawdown.toFixed(2)}%`}</span>
             </div>
           )}
-          <div className="flex items-center justify-between gap-8">
-            <span className="text-sm text-muted-foreground">Volume:</span>
-            <span className="font-medium">{data.volume}</span>
-          </div>
         </div>
       </div>
+    )
+  }
+  
+  if (loading) {
+    return (
+      <Card className="p-4">
+        <div className="h-[300px] sm:h-[400px] w-full bg-gray-200 rounded-lg animate-pulse"></div>
+      </Card>
     )
   }
 
@@ -133,10 +164,12 @@ export function PerformanceChart({ chartData }: { chartData: Record<string, any[
               fill="url(#colorDrawdown)"
               strokeWidth={2}
               name="Drawdown"
+              yAxisId="right"
             />
+             <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(value) => `${value.toFixed(1)}%`} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
     </Card>
   )
-}
+})
