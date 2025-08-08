@@ -6,11 +6,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StrategiesOverview } from "@/components/strategies-overview"
 import { StrategiesDetails } from "@/components/strategies-details"
 
-// Define a minimal type for the strategy list
+// Strategy type that matches the API response
 type Strategy = {
   id: string
   name: string
-  // Add other fields if needed for other components
+  description: string
+  totalPnL: number
+  winRate: number
+  totalTrades: number
+  status: string
+  topPairs: string[]
+  lastTrade: string | null
+  bestPair: { symbol: string; pnl: number; trades: number }
+  worstPair: { symbol: string; pnl: number; trades: number }
 }
 
 export default function StrategiesPage() {
@@ -86,9 +94,9 @@ export default function StrategiesPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px] xl:w-[500px]">
-          <TabsTrigger value="overview" className="text-sm lg:text-base">Overview</TabsTrigger>
-          <TabsTrigger value="details" className="text-sm lg:text-base">Details</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px] xl:w-[500px] gap-0">
+          <TabsTrigger value="overview" className="flex-1 text-sm lg:text-base">Overview</TabsTrigger>
+          <TabsTrigger value="details" className="flex-1 text-sm lg:text-base">Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
