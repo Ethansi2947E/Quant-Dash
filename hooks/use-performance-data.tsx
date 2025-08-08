@@ -112,4 +112,4 @@ export function usePerformanceData() {
     throw new Error("usePerformanceData must be used within a PerformanceProvider")
   }
   return context
-} 
+}

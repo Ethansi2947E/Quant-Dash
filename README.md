@@ -12,30 +12,30 @@ This dashboard is the frontend component of the main **Quant-Bot** project. For 
 
 - Node.js (v18 or later recommended)
 - `pnpm` package manager. If you don't have it, install it globally:
-  ```bash
+  \`\`\`bash
   npm install -g pnpm
-  ```
+  \`\`\`
 
 ### Installation
 
 1.  **Navigate to the dashboard directory:**
-    ```bash
+    \`\`\`bash
     cd /path/to/your/Trading_Bot/Quant-Dash
-    ```
+    \`\`\`
 
 2.  **Install the dependencies using `pnpm`:**
-    ```bash
+    \`\`\`bash
     pnpm install
-    ```
+    \`\`\`
 
 ### Running the Development Server
 
 1.  Make sure the [Trading Bot API](../api/README.md) is running.
 
 2.  From the `Quant-Dash` directory, start the development server:
-    ```bash
+    \`\`\`bash
     pnpm dev
-    ```
+    \`\`\`
 
 3.  Open your browser and navigate to `http://localhost:3000` to see the dashboard.
 
