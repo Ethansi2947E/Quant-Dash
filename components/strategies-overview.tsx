@@ -56,7 +56,11 @@ const strategiesData = [
   },
 ]
 
-export function StrategiesOverview() {
+interface StrategiesOverviewProps {
+  onViewDetails: (strategyId: string) => void
+}
+
+export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
   const [selectedSymbol, setSelectedSymbol] = useState("all")
 
   // Calculate aggregated metrics
@@ -178,19 +182,11 @@ export function StrategiesOverview() {
           {strategiesData.map((strategy) => (
             <Card key={strategy.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{strategy.name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {strategy.description}
-                    </CardDescription>
-                  </div>
-                  <Badge 
-                    variant={strategy.status === 'active' ? 'default' : 'secondary'}
-                    className={strategy.status === 'active' ? 'bg-green-500' : ''}
-                  >
-                    {strategy.status}
-                  </Badge>
+                <div>
+                  <CardTitle className="text-lg">{strategy.name}</CardTitle>
+                  <CardDescription className="mt-1">
+                    {strategy.description}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -226,7 +222,11 @@ export function StrategiesOverview() {
                   <p className="text-xs text-muted-foreground">
                     Last trade: {formatDate(strategy.lastTrade)}
                   </p>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => onViewDetails(strategy.id)}
+                  >
                     View Details
                   </Button>
                 </div>

@@ -15,7 +15,7 @@ export function CalendarDateRangePicker({
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2024, 0, 1),
-    to: addDays(new Date(2024, 0, 1), 30),
+    to: addDays(new Date(2024, 0, 1), 20),
   })
 
   return (
@@ -41,7 +41,7 @@ export function CalendarDateRangePicker({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date range</span>
+              <span>Pick a date</span>
             )}
           </Button>
         </PopoverTrigger>

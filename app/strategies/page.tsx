@@ -7,6 +7,12 @@ import { StrategiesDetails } from "@/components/strategies-details"
 
 export default function StrategiesPage() {
   const [activeTab, setActiveTab] = useState("overview")
+  const [selectedStrategy, setSelectedStrategy] = useState("momentum-1")
+
+  const handleViewDetails = (strategyId: string) => {
+    setSelectedStrategy(strategyId)
+    setActiveTab("details")
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-6">
@@ -24,11 +30,14 @@ export default function StrategiesPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <StrategiesOverview />
+          <StrategiesOverview onViewDetails={handleViewDetails} />
         </TabsContent>
 
         <TabsContent value="details" className="space-y-6">
-          <StrategiesDetails />
+          <StrategiesDetails 
+            selectedStrategy={selectedStrategy}
+            onStrategyChange={setSelectedStrategy}
+          />
         </TabsContent>
       </Tabs>
     </div>
