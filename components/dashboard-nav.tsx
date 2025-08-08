@@ -1,19 +1,27 @@
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+"use client"
 
-const DashboardNav = () => {
-  const pathname = usePathname();
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { useCallback, useState } from "react"
 
-  const navItems = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/settings", label: "Settings" },
-    { href: "/strategies", label: "Strategies" }, // Added Strategies link
-  ];
+export function DashboardNav() {
+  const pathname = usePathname()
+  const [error, setError] = useState<Error | null>(null)
 
-  const handleNavigation = (href: string) => {
-    // Handle navigation logic here
-  };
+  const handleNavigation = useCallback(async (path: string) => {
+    try {
+      // Add any async operations here
+      setError(null)
+    } catch (err) {
+      setError(err as Error)
+      console.error("Navigation error:", err)
+    }
+  }, [])
+
+  if (error) {
+    return <div className="p-4 text-red-500">An error occurred. Please try again.</div>
+  }
 
   return (
     <div className="flex rounded-lg bg-slate-100 p-1">
@@ -47,19 +55,6 @@ const DashboardNav = () => {
       >
         Trade History
       </Link>
-      {/* New Strategies tab */}
-      <Link
-        href="/strategies"
-        onClick={() => handleNavigation("/strategies")}
-        className={cn(
-          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-          pathname === "/strategies" ? "bg-white shadow-sm" : "text-slate-600 hover:bg-white/50 hover:text-slate-900",
-        )}
-      >
-        Strategies
-      </Link>
     </div>
-  );
-};
-
-export default DashboardNav;
+  )
+}

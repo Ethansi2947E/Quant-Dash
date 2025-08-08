@@ -4,13 +4,17 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
 const navItems = [
   {
     title: "Dashboard",
     href: "/",
+  },
+  {
+    title: "Strategies",
+    href: "/strategies",
   },
   {
     title: "Performance",
