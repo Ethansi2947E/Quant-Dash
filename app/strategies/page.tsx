@@ -15,18 +15,18 @@ export default function StrategiesPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="container mx-auto p-4 lg:p-6 xl:p-8 space-y-6">
       <div className="flex flex-col space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Trading Strategies</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight">Trading Strategies</h1>
+        <p className="text-muted-foreground text-sm lg:text-base">
           Monitor and analyze the performance of your trading strategies
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="details">Details</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px] xl:w-[500px]">
+          <TabsTrigger value="overview" className="text-sm lg:text-base">Overview</TabsTrigger>
+          <TabsTrigger value="details" className="text-sm lg:text-base">Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

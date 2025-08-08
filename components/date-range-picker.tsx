@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { CalendarIcon } from 'lucide-react'
 import { addDays, format } from "date-fns"
+import { CalendarIcon } from 'lucide-react'
 import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -15,7 +15,7 @@ export function CalendarDateRangePicker({
 }: React.HTMLAttributes<HTMLDivElement>) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2024, 0, 1),
-    to: addDays(new Date(2024, 0, 1), 20),
+    to: addDays(new Date(2024, 0, 1), 30),
   })
 
   return (

@@ -280,7 +280,7 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
   return (
     <div className="space-y-6">
       {/* Strategy Selection */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <Select value={selectedStrategy} onValueChange={onStrategyChange}>
           <SelectTrigger className="w-full sm:w-[300px]">
             <SelectValue placeholder="Select strategy" />
@@ -292,7 +292,9 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <SelectItem value="trend-following-1">Trend Following</SelectItem>
           </SelectContent>
         </Select>
-        <CalendarDateRangePicker />
+        <div className="w-full sm:w-auto">
+          <CalendarDateRangePicker />
+        </div>
         <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by symbol" />
@@ -310,8 +312,8 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
       <Card>
         <CardHeader>
           <div>
-            <CardTitle className="text-xl">{currentStrategy.name}</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle className="text-xl lg:text-2xl">{currentStrategy.name}</CardTitle>
+            <CardDescription className="mt-1 text-sm lg:text-base">
               {currentStrategy.description}
             </CardDescription>
           </div>
@@ -319,14 +321,14 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
       </Card>
 
       {/* Strategy Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${currentStrategy.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-xl lg:text-2xl font-bold ${currentStrategy.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(currentStrategy.totalPnL)}
             </div>
           </CardContent>
@@ -338,7 +340,7 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentStrategy.winRate}%</div>
+            <div className="text-xl lg:text-2xl font-bold">{currentStrategy.winRate}%</div>
           </CardContent>
         </Card>
 
@@ -348,7 +350,7 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentStrategy.totalTrades}</div>
+            <div className="text-xl lg:text-2xl font-bold">{currentStrategy.totalTrades}</div>
           </CardContent>
         </Card>
 
@@ -358,7 +360,7 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-xl lg:text-2xl font-bold text-red-600">
               {formatCurrency(currentStrategy.maxDrawdown)}
             </div>
           </CardContent>
@@ -370,7 +372,7 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${currentStrategy.sharpeRatio >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-xl lg:text-2xl font-bold ${currentStrategy.sharpeRatio >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {currentStrategy.sharpeRatio}
             </div>
           </CardContent>
@@ -380,13 +382,13 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
       {/* Equity Curve */}
       <Card>
         <CardHeader>
-          <CardTitle>Equity Curve</CardTitle>
+          <CardTitle className="text-lg lg:text-xl">Equity Curve</CardTitle>
           <CardDescription>Strategy performance over time</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px] sm:h-[400px] w-full">
+          <div className="h-[300px] sm:h-[400px] lg:h-[500px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={equityData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart data={equityData} margin={{ top: 10, right: 30, left: 20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
@@ -400,14 +402,14 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDate}
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                   type="category"
                 />
                 <YAxis
                   tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                   domain={['dataMin - 500', 'dataMax + 500']}
@@ -435,12 +437,12 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
       {/* Trade History */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div>
-              <CardTitle>Trade History</CardTitle>
+              <CardTitle className="text-lg lg:text-xl">Trade History</CardTitle>
               <CardDescription>Detailed trade records for this strategy</CardDescription>
             </div>
-            <div className="relative w-full sm:w-64">
+            <div className="relative w-full lg:w-80">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search trades..."
@@ -456,13 +458,13 @@ export function StrategiesDetails({ selectedStrategy, onStrategyChange }: Strate
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Direction</TableHead>
-                  <TableHead>Entry Price</TableHead>
-                  <TableHead>Exit Price</TableHead>
-                  <TableHead className="text-right">P&L</TableHead>
-                  <TableHead>Notes</TableHead>
+                  <TableHead className="min-w-[140px]">Date</TableHead>
+                  <TableHead className="min-w-[80px]">Symbol</TableHead>
+                  <TableHead className="min-w-[80px]">Direction</TableHead>
+                  <TableHead className="min-w-[100px]">Entry Price</TableHead>
+                  <TableHead className="min-w-[100px]">Exit Price</TableHead>
+                  <TableHead className="text-right min-w-[100px]">P&L</TableHead>
+                  <TableHead className="min-w-[200px]">Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

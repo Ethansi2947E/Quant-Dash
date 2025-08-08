@@ -94,8 +94,10 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <CalendarDateRangePicker />
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="w-full sm:w-auto">
+          <CalendarDateRangePicker />
+        </div>
         <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by symbol" />
@@ -113,7 +115,7 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
       </div>
 
       {/* Aggregated Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
@@ -178,31 +180,31 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
       {/* Strategy Cards */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Strategy Performance</h3>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {strategiesData.map((strategy) => (
             <Card key={strategy.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div>
-                  <CardTitle className="text-lg">{strategy.name}</CardTitle>
-                  <CardDescription className="mt-1">
+                  <CardTitle className="text-lg leading-tight">{strategy.name}</CardTitle>
+                  <CardDescription className="mt-1 text-sm">
                     {strategy.description}
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <div className={`text-lg font-bold ${strategy.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`text-base lg:text-lg font-bold ${strategy.totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {strategy.totalPnL >= 0 ? '+' : ''}{formatCurrency(strategy.totalPnL)}
                     </div>
                     <p className="text-xs text-muted-foreground">P&L</p>
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{strategy.winRate}%</div>
+                    <div className="text-base lg:text-lg font-bold">{strategy.winRate}%</div>
                     <p className="text-xs text-muted-foreground">Win Rate</p>
                   </div>
                   <div>
-                    <div className="text-lg font-bold">{strategy.totalTrades}</div>
+                    <div className="text-base lg:text-lg font-bold">{strategy.totalTrades}</div>
                     <p className="text-xs text-muted-foreground">Trades</p>
                   </div>
                 </div>
@@ -218,7 +220,7 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center justify-between pt-2 border-t">
                   <p className="text-xs text-muted-foreground">
                     Last trade: {formatDate(strategy.lastTrade)}
                   </p>
@@ -226,6 +228,7 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
                     size="sm" 
                     variant="outline"
                     onClick={() => onViewDetails(strategy.id)}
+                    className="shrink-0"
                   >
                     View Details
                   </Button>
