@@ -1,74 +1,55 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CalendarDateRangePicker } from "@/components/date-range-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TrendingUp, TrendingDown, Activity, DollarSign } from 'lucide-react'
+import { DateRange } from "react-day-picker"
 
-// Mock data for strategies
-const strategiesData = [
-  {
-    id: "momentum-1",
-    name: "Momentum Breakout",
-    description: "Trades breakouts from key resistance levels",
-    totalPnL: 12450.75,
-    winRate: 68.5,
-    totalTrades: 147,
-    status: "active",
-    topPairs: ["BTC/USD", "ETH/USD", "SOL/USD"],
-    lastTrade: "2024-01-15T14:30:00Z",
-  },
-  {
-    id: "mean-reversion-1",
-    name: "Mean Reversion",
-    description: "Capitalizes on price reversals from extreme levels",
-    totalPnL: 8920.30,
-    winRate: 72.3,
-    totalTrades: 203,
-    status: "active",
-    topPairs: ["BTC/USD", "ETH/USD", "ADA/USD"],
-    lastTrade: "2024-01-15T16:45:00Z",
-  },
-  {
-    id: "scalping-1",
-    name: "High-Frequency Scalping",
-    description: "Quick trades on small price movements",
-    totalPnL: -1250.45,
-    winRate: 45.2,
-    totalTrades: 892,
-    status: "paused",
-    topPairs: ["BTC/USD", "ETH/USD", "XRP/USD"],
-    lastTrade: "2024-01-14T09:15:00Z",
-  },
-  {
-    id: "trend-following-1",
-    name: "Trend Following",
-    description: "Follows established market trends",
-    totalPnL: 15680.90,
-    winRate: 58.7,
-    totalTrades: 89,
-    status: "active",
-    topPairs: ["BTC/USD", "ETH/USD", "LINK/USD"],
-    lastTrade: "2024-01-15T18:20:00Z",
-  },
-]
-
-interface StrategiesOverviewProps {
-  onViewDetails: (strategyId: string) => void
+type StrategyOverview = {
+  id: string
+  name: string
+  description: string
+  totalPnL: number
+  winRate: number
+  totalTrades: number
+  status: string
+  topPairs: string[]
+  lastTrade: string | null
+  bestPair: { symbol: string; pnl: number; trades: number }
+  worstPair: { symbol: string; pnl: number; trades: number }
 }
 
-export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
-  const [selectedSymbol, setSelectedSymbol] = useState("all")
+interface StrategiesOverviewProps {
+  strategies: StrategyOverview[]
+  onViewDetails: (strategyId: string) => void
+  availableAssets: string[]
+  selectedSymbol: string
+  onSymbolChange: (symbol: string) => void
+  dateRange: DateRange | undefined
+  onDateChange: (dateRange: DateRange | undefined) => void
+}
 
-  // Calculate aggregated metrics
-  const totalPnL = strategiesData.reduce((sum, strategy) => sum + strategy.totalPnL, 0)
-  const totalTrades = strategiesData.reduce((sum, strategy) => sum + strategy.totalTrades, 0)
-  const avgWinRate = strategiesData.reduce((sum, strategy) => sum + strategy.winRate, 0) / strategiesData.length
+export function StrategiesOverview({ 
+  strategies: strategiesData, 
+  onViewDetails,
+  availableAssets,
+  selectedSymbol,
+  onSymbolChange,
+  dateRange,
+  onDateChange,
+}: StrategiesOverviewProps) {
 
-  // Get top performing pairs across all strategies
+  // Calculate aggregated metrics from the filtered data passed in props
+  const totalPnL = strategiesData.reduce((sum, strategy) => sum + (strategy.totalPnL || 0), 0)
+  const totalTrades = strategiesData.reduce((sum, strategy) => sum + (strategy.totalTrades || 0), 0)
+  const avgWinRate = strategiesData.length > 0
+    ? strategiesData.reduce((sum, strategy) => sum + (strategy.winRate || 0), 0) / strategiesData.length
+    : 0
+
+  // Get top performing pairs across all strategies in the current view
   const allPairs = strategiesData.flatMap(strategy => strategy.topPairs)
   const pairCounts = allPairs.reduce((acc, pair) => {
     acc[pair] = (acc[pair] || 0) + 1
@@ -90,26 +71,29 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString()
   }
+  
+  if (!strategiesData) {
+    return <div className="py-8 text-sm text-muted-foreground">Loading...</div>
+  }
+  if (strategiesData.length === 0) {
+    return <div className="py-8 text-sm text-muted-foreground">No strategies found for the selected filters.</div>
+  }
 
   return (
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <div className="w-full sm:w-auto">
-          <CalendarDateRangePicker />
+          <CalendarDateRangePicker date={dateRange} onDateChange={onDateChange} />
         </div>
-        <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
+        <Select value={selectedSymbol} onValueChange={onSymbolChange}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by symbol" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Symbols</SelectItem>
-            <SelectItem value="BTC/USD">BTC/USD</SelectItem>
-            <SelectItem value="ETH/USD">ETH/USD</SelectItem>
-            <SelectItem value="SOL/USD">SOL/USD</SelectItem>
-            <SelectItem value="ADA/USD">ADA/USD</SelectItem>
-            <SelectItem value="XRP/USD">XRP/USD</SelectItem>
-            <SelectItem value="LINK/USD">LINK/USD</SelectItem>
+            {availableAssets.map(asset => (
+              <SelectItem key={asset} value={asset}>{asset}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -219,10 +203,25 @@ export function StrategiesOverview({ onViewDetails }: StrategiesOverviewProps) {
                     ))}
                   </div>
                 </div>
+                <div>
+                  <p className="text-sm font-medium mb-2">Key Pairs:</p>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-green-600">Best:</span>
+                    <span>
+                      {strategy.bestPair.symbol} ({formatCurrency(strategy.bestPair.pnl)}) · {strategy.bestPair.trades} trades
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-red-600">Worst:</span>
+                    <span>
+                      {strategy.worstPair.symbol} ({formatCurrency(strategy.worstPair.pnl)}) · {strategy.worstPair.trades} trades
+                    </span>
+                  </div>
+                </div>
 
                 <div className="flex items-center justify-between pt-2 border-t">
                   <p className="text-xs text-muted-foreground">
-                    Last trade: {formatDate(strategy.lastTrade)}
+                    Last trade: {strategy.lastTrade ? formatDate(strategy.lastTrade) : "N/A"}
                   </p>
                   <Button 
                     size="sm" 
